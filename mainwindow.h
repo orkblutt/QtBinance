@@ -5,6 +5,7 @@
 #include <QThread>
 #include <QMutex>
 
+
 #include "binanceclient.h"
 
 namespace Ui {
@@ -39,6 +40,8 @@ private:
     Ui::MainWindow *ui;
     binanceClient* _client;
     priceThread* _thread;
+
+
 
     bool _bReady;
     double _currentPrice;

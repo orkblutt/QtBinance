@@ -1,5 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <QDir>
+#include <QSettings>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -14,8 +16,16 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    _client = new binanceClient("Xo9MFiaHgWCMDrfuyeeUCw9X7BNPcnz4PpbJiMPwniVmfGueqEg0oDVfNOPOI5Lb"
-                                , "jHqJUEMySQMFAvLSW8h8ec3Qwun8aVTdV8O3ilDssfrLRvRhCVXI04lYMK71OA6l");
+    QString path(QDir::currentPath() + QDir::separator() + "key.ini");
+
+    QSettings settings(path, QSettings::IniFormat);
+
+    QString api_key=settings.value("api_key").toString();
+    QString secret_key=settings.value("secret_key").toString();
+qDebug() << api_key;
+
+    _client = new binanceClient(api_key.toLocal8Bit()
+                                , secret_key.toLocal8Bit());
 
     connect(_client, SIGNAL(priceSignal(double)), this, SLOT(onPriceReply(double)));
     connect(_client, SIGNAL(balanceSignal(double,double)), this, SLOT(onBalanceReply(double,double)));
