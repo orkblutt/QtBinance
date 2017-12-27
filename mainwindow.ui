@@ -6,78 +6,337 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>482</width>
-    <height>278</height>
+    <width>391</width>
+    <height>332</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>QtBinance</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QWidget {
+color: white;
+  background-color:  black;
+
+ }
+
+QSlider::groove:horizontal {
+    border: 1px solid #999999;
+    height: 8px; /* the groove expands to the size of the slider by default. by giving it a height, it has a fixed size */
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #B1B1B1, stop:1 #c4c4c4);
+    margin: 2px 0;
+}
+
+QSlider::handle:horizontal {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #00b400, stop:1 #8f8f8f);
+    border: 1px solid #5c5c5c;
+    width: 18px;
+    margin: -2px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
+    border-radius: 3px;
+}
+
+QLabel
+{
+  background-color: black;
+  color: white;
+
+}
+
+QGroupBox {
+    background-color: black;
+    border: 2px solid gray;
+    border-radius: 5px;
+    margin-top: 1ex; /* leave space at the top for the title */
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    subcontrol-position: top center; /* position at the top center */
+    padding: 0 3px;
+    background-color: black;
+}
+
+
+QLineEdit {
+ padding: 1px;
+ border-style: solid;
+ border: 2px solid gray;
+ border-radius: 4px;
+ }
+
+QTextEdit {
+  border: 2px solid gray;
+  border-radius: 4px;
+}
+
+
+
+QLineEdit
+{
+color: white;
+}
+
+QLineEdit#lineEditDonate
+{
+border-style: no-border;
+color: yellow;
+}
+
+
+QDateTimeEdit {
+  padding: 1px;
+  border-style: solid;
+  border: 2px solid gray;
+  border-radius: 4px;
+}
+
+QTimeEdit {
+  padding: 1px;
+  border-style: solid;
+  border: 2px solid gray;
+  border-radius: 4px;
+}
+
+QComboBox {
+  border: 2px solid gray;
+  border-radius: 4px;
+}
+
+QTreeView {
+  border: 2px solid gray;
+  border-radius: 4px;
+}
+
+
+QListView {
+    alternate-background-color: gray;
+}
+
+
+
+QCheckBox {
+color: white;
+
+ }
+
+QSpinBox {
+color: white;
+ padding: 1px;
+ border-style: solid;
+ border: 2px solid gray;
+ border-radius: 2px;
+ }
+
+QPushButton {
+ color: white;
+ background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1,
+                    stop: 0 #808080, stop: 0.1 #909090,
+                    stop: 0.49 #505050, stop: 0.5 #666666, stop: 1 #909090);
+ border-width: 1px;
+ border-color: black;
+ border-style: solid;
+ border-radius: 4;
+ padding: 3px;
+ font-size: 13px;
+ padding-left: 5px;
+ padding-right: 5px;
+ min-width: 50px;
+ max-width: 200px;
+ min-height: 13px;
+ max-height: 40px;
+ }
+
+QPushButton:pressed
+{
+ color: white;
+ background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #88d, stop: 0.1 #77e, stop: 0.49 #12c, stop: 0.5 #33b, stop: 1 #22c);
+ border-width: 1px;
+ border-color: black;
+ border-style: solid;
+ border-radius: 4;
+ padding: 3px;
+ font-size: 13px;
+ padding-left: 5px;
+ padding-right: 5px;
+ min-width: 50px;
+ max-width: 200px;
+ min-height: 13px;
+ max-height: 40px;
+}
+
+QPushButton:hover
+{
+ color: white;
+ background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #505050, stop: 0.1 #707070, stop: 0.49 #12c, stop: 0.5 #aaaaaa, stop: 1 #33c);
+ border-width: 1px;
+ border-color: black;
+ border-style: solid;
+ border-radius: 4;
+ padding: 3px;
+ font-size: 13px;
+ padding-left: 5px;
+ padding-right: 5px;
+ min-width: 50px;
+ max-width: 200px;
+ min-height: 13px;
+ max-height: 40px;
+}
+
+QPushButton:checked
+{
+ color: white;
+ background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #88d, stop: 0.1 #77e, stop: 0.49 #12c, stop: 0.5 #44b, stop: 1 #ddc);
+ border-width: 1px;
+ border-color: black;
+ border-style: solid;
+ border-radius: 4;
+ padding: 3px;
+ font-size: 13px;
+ padding-left: 5px;
+ padding-right: 5px;
+ min-width: 50px;
+ max-width: 200px;
+ min-height: 13px;
+ max-height: 40px;
+}
+
+QPushButton:disabled
+{
+ color: white;
+ background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1,
+                    stop: 0 #CCCCCC, stop: 0.1 #EEEEEE,
+                    stop: 0.49 #AAAAAA, stop: 0.5 #BBBBBB, stop: 1 #CCCCCC);
+ border-width: 1px;
+ border-color: black;
+ border-style: solid;
+ border-radius: 4;
+ padding: 3px;
+ font-size: 13px;
+ padding-left: 5px;
+ padding-right: 5px;
+ min-width: 50px;
+ max-width: 200px;
+ min-height: 13px;
+ max-height: 40px;
+}</string>
   </property>
   <property name="dockOptions">
    <set>QMainWindow::AllowTabbedDocks|QMainWindow::AnimatedDocks</set>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0">
-     <widget class="QLabel" name="label">
-      <property name="text">
-       <string>WTC:</string>
+   <layout class="QGridLayout" name="gridLayout_3">
+    <item row="1" column="0" colspan="4">
+     <widget class="QGroupBox" name="groupBox">
+      <property name="title">
+       <string>Market info</string>
       </property>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>WTCETH current price:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLCDNumber" name="lcdNumberWTCETH">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="digitCount">
+          <number>8</number>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </item>
-    <item row="0" column="1">
-     <widget class="QLCDNumber" name="lcdNumberWTCETH">
-      <property name="digitCount">
-       <number>12</number>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="0">
+    <item row="2" column="0">
      <widget class="QLabel" name="label_2">
       <property name="text">
        <string>Buy</string>
       </property>
      </widget>
     </item>
-    <item row="1" column="1">
+    <item row="2" column="1">
      <widget class="QLineEdit" name="lineEdit_buyLimit"/>
     </item>
-    <item row="1" column="2">
+    <item row="2" column="2">
      <widget class="QCheckBox" name="checkBoxAuto">
       <property name="text">
        <string>auto</string>
       </property>
      </widget>
     </item>
-    <item row="1" column="3">
+    <item row="2" column="3">
      <widget class="QPushButton" name="pushButtonBuy">
       <property name="text">
        <string>BUY</string>
       </property>
      </widget>
     </item>
-    <item row="2" column="0">
+    <item row="3" column="0">
      <widget class="QLabel" name="label_3">
       <property name="text">
        <string>Sell</string>
       </property>
      </widget>
     </item>
-    <item row="2" column="1">
+    <item row="3" column="1">
      <widget class="QLineEdit" name="lineEdit_sellLimit"/>
     </item>
-    <item row="2" column="3">
+    <item row="3" column="2">
+     <widget class="QCheckBox" name="checkBoxBuySell">
+      <property name="text">
+       <string>Buy</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="3">
      <widget class="QPushButton" name="pushButtonSell">
       <property name="text">
        <string>SELL</string>
       </property>
      </widget>
     </item>
-    <item row="2" column="2">
-     <widget class="QCheckBox" name="checkBoxBuySell">
-      <property name="text">
-       <string>Buy</string>
+    <item row="0" column="0" colspan="4">
+     <widget class="QGroupBox" name="groupBoxBal">
+      <property name="title">
+       <string>Balance</string>
       </property>
+      <layout class="QGridLayout" name="gridLayout">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_5">
+         <property name="text">
+          <string>ETH</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLCDNumber" name="lcdNumberBalEth">
+         <property name="digitCount">
+          <number>8</number>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_6">
+         <property name="text">
+          <string>WTC</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLCDNumber" name="lcdNumberBalWTC">
+         <property name="digitCount">
+          <number>8</number>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </item>
    </layout>

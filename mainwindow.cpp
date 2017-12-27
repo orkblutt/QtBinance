@@ -22,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QString api_key=settings.value("api_key").toString();
     QString secret_key=settings.value("secret_key").toString();
-qDebug() << api_key;
+
 
     _client = new binanceClient(api_key.toLocal8Bit()
                                 , secret_key.toLocal8Bit());
@@ -31,10 +31,10 @@ qDebug() << api_key;
     connect(_client, SIGNAL(balanceSignal(double,double)), this, SLOT(onBalanceReply(double,double)));
 
 
-    _client->getAccount();
-
     _thread = new priceThread(this);
     connect(_thread, SIGNAL(emitPrice()), this, SLOT(onPrice()));
+    connect(_thread, SIGNAL(refreshAccount()), this, SLOT(onRefreshAccount()));
+
     _thread->start();
 }
 
@@ -79,8 +79,17 @@ void MainWindow::onBalanceReply(double eth, double wtc)
 {
     _ethBal = eth;
     _wtcBal = wtc;
+
     qDebug() << "balance is " << _ethBal << " ETH and " << _wtcBal << " WTC";
+    ui->lcdNumberBalEth->display(_ethBal);
+    ui->lcdNumberBalWTC->display(_wtcBal);
+
     _bReady = true;
+}
+
+void MainWindow::onRefreshAccount()
+{
+    _client->getAccount();
 }
 
 priceThread::priceThread(QObject *parent) : _parent(parent)
@@ -90,11 +99,20 @@ priceThread::priceThread(QObject *parent) : _parent(parent)
 
 void priceThread::run()
 {
-    //QThread::sleep(5);
+    int refreshAccCntr = 0;
+
     while(1)
     {
+        if(refreshAccCntr % 200 == 0)
+        {
+            refreshAccCntr = 0;
+            emit refreshAccount();
+        }
         emit emitPrice();
-        QThread::sleep(1);
+
+        refreshAccCntr++;
+
+        QThread::msleep(500);
     }
 }
 

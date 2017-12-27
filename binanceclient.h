@@ -109,6 +109,7 @@ signals:
 
     void priceSignal(double price);
     void balanceSignal(double, double);
+    void refreshAccount();
 };
 
 #endif // BINANCECLIENT_H

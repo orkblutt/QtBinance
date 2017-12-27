@@ -23,9 +23,11 @@ public:
 private:
 
     QObject* _parent;
+
 signals:
 
     void emitPrice();
+    void refreshAccount();
 };
 
 class MainWindow : public QMainWindow
@@ -60,6 +62,8 @@ public slots:
     void onPrice();
     void onPriceReply(double price);
     void onBalanceReply(double eth, double wtc);
+    void onRefreshAccount();
+
 private slots:
     void on_pushButtonBuy_clicked();
     void on_pushButtonSell_clicked();
