@@ -27,14 +27,10 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
         binanceclient.cpp \
-    binancemgr.cpp \
-    candlestickdatareader.cpp
 
 HEADERS += \
         mainwindow.h \
         binanceclient.h \
-    binancemgr.h \
-    candlestickdatareader.h
 
 FORMS += \
         mainwindow.ui

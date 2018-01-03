@@ -151,12 +151,12 @@ void MainWindow::onCandleReply(QJsonArray jcandleArray)
 
     QBarCategoryAxis *axisX = qobject_cast<QBarCategoryAxis *>(_chart->axes(Qt::Horizontal).at(0));
     axisX->setCategories(categories);
-
+/*
     QValueAxis *axisY = qobject_cast<QValueAxis *>(_chart->axes(Qt::Vertical).at(0));
     qDebug() << axisY->max() << " " << axisY->min();
     //axisY->setMax(axisY->max() * 1.01);
     //axisY->setMin(axisY->min() * 0.99);
-
+*/
 
 }
 
@@ -168,7 +168,7 @@ void MainWindow::onRefreshAccount()
 void MainWindow::onRefreshCandles()
 {
     if(_serverTime > 0)
-        _client->candleSticks("WTCETH", _serverTime - 3600000);
+        _client->candleSticks("WTCETH", _serverTime - 1800000);
 }
 
 void MainWindow::onRefreshSTime()
