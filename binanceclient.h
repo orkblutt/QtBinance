@@ -26,6 +26,7 @@
 #define     ACCOUNT_V3 "/v3/account"
 #define     ALLORDERS "/v3/allOrders"
 #define     OPENORDER "/v3/order"
+#define     CANDLESTICK "/v1/klines"
 
 #define    SYMBOL_TYPE_SPOT "SPOT"
 
@@ -88,6 +89,7 @@ public:
     void getSymbolPrice(const QString& name);
     void getAccount();
     void getAllOrders();
+    void candleSticks(const QString& name, qulonglong startTime);
 
     void openOrder(const QString& symbol, const QString& order, const QString& type, double quantity, double price);
 
@@ -95,21 +97,26 @@ private:
     QByteArray _secretKey;
     QByteArray _apiKey;
 
+    QNetworkAccessManager* _networkManagerSTime;
     QNetworkAccessManager* _networkManagerAccount;
     QNetworkAccessManager* _networkManagerPrice;
     QNetworkAccessManager* _networkManagerOrder;
-
+    QNetworkAccessManager* _networkManagerCandle;
 
 public slots:
     void replyFinishedAccount(QNetworkReply* reply);
     void replyFinishedPrice(QNetworkReply* reply);
     void replyFinishedOrder(QNetworkReply* reply);
+    void replyFinishedCandle(QNetworkReply* reply);
+    void replyFinishedSTime(QNetworkReply *reply);
 
 signals:
 
     void priceSignal(double price);
     void balanceSignal(double, double);
     void refreshAccount();
+    void serverTimeSignal(qulonglong stime);
+    void candleSticksSignal(QJsonArray);
 };
 
 #endif // BINANCECLIENT_H

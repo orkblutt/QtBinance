@@ -17,6 +17,8 @@ binanceClient::binanceClient(QByteArray apiKey, QByteArray secretKey, QObject* p
     _networkManagerAccount = new QNetworkAccessManager(this);
     _networkManagerPrice = new QNetworkAccessManager(this);
     _networkManagerOrder = new QNetworkAccessManager(this);
+    _networkManagerCandle = new QNetworkAccessManager(this);
+    _networkManagerSTime = new QNetworkAccessManager(this);
 
     connect(_networkManagerAccount, &QNetworkAccessManager::finished,
             this, &binanceClient::replyFinishedAccount, Qt::DirectConnection);
@@ -24,6 +26,16 @@ binanceClient::binanceClient(QByteArray apiKey, QByteArray secretKey, QObject* p
             this, &binanceClient::replyFinishedPrice, Qt::DirectConnection);
     connect(_networkManagerOrder, &QNetworkAccessManager::finished,
             this, &binanceClient::replyFinishedOrder, Qt::DirectConnection);
+
+    connect(_networkManagerCandle, &QNetworkAccessManager::finished,
+            this, &binanceClient::replyFinishedCandle, Qt::DirectConnection);
+
+    connect(_networkManagerSTime, &QNetworkAccessManager::finished,
+            this, &binanceClient::replyFinishedSTime, Qt::DirectConnection);
+
+
+
+
 
 }
 
@@ -40,7 +52,7 @@ void binanceClient::getServerTime()
     QNetworkRequest netReq;
     netReq.setSslConfiguration(QSslConfiguration::defaultConfiguration());
     netReq.setUrl(url);
-    //_networkManager->get(netReq);
+    _networkManagerSTime->get(netReq);
 
 }
 
@@ -114,6 +126,22 @@ void binanceClient::getAllOrders()
     //_networkManager->get(netReq);
 }
 
+void binanceClient::candleSticks(const QString &name, qulonglong startTime)
+{
+    qDebug() << startTime;
+    QUrl url(QString(API_URL) + QString(CANDLESTICK) + QString("?symbol=") + name + QString("&interval=1m&startTime=") + QString::number(startTime));
+
+    QNetworkRequest netReq;
+    netReq.setSslConfiguration(QSslConfiguration::defaultConfiguration());
+    // netReq.setRawHeader("User-Agent", "QTBinance");
+    // netReq.setRawHeader("X-Custom-User-Agent", "QTBinance");
+    // netReq.setRawHeader("Accept", "application/json");
+    netReq.setUrl(url);
+    qDebug() << url;
+    QNetworkReply* reply = _networkManagerCandle->get(netReq);
+
+}
+
 void binanceClient::openOrder(const QString &symbol, const QString &order, const QString &type, double quantity, double price)
 {
     QString surl = QString(API_URL) + QString (OPENORDER);
@@ -147,6 +175,15 @@ void binanceClient::openOrder(const QString &symbol, const QString &order, const
 
 void binanceClient::replyFinishedAccount(QNetworkReply *reply)
 {
+
+    if (reply->error() != QNetworkReply::NoError)
+    {
+        qDebug() << reply->errorString();
+        reply->deleteLater();
+        return;
+    }
+
+
     QByteArray data = reply->readAll();
     if(!data.isEmpty())
     {
@@ -179,6 +216,13 @@ void binanceClient::replyFinishedAccount(QNetworkReply *reply)
 
 void binanceClient::replyFinishedPrice(QNetworkReply *reply)
 {
+    if (reply->error() != QNetworkReply::NoError)
+    {
+        qDebug() << reply->errorString();
+        reply->deleteLater();
+        return;
+    }
+
     QByteArray data = reply->readAll();
     if(!data.isEmpty())
     {
@@ -212,18 +256,24 @@ void binanceClient::replyFinishedPrice(QNetworkReply *reply)
 
 void binanceClient::replyFinishedOrder(QNetworkReply *reply)
 {
+    if (reply->error() != QNetworkReply::NoError)
+    {
+        qDebug() << reply->errorString();
+        reply->deleteLater();
+        return;
+    }
+
     QByteArray data = reply->readAll();
     if(!data.isEmpty())
     {
-        // qDebug() << data;
+        qDebug() << data;
         QJsonDocument jsondoc = QJsonDocument::fromJson(data);
 
         if(!jsondoc.isNull())
         {
             if(jsondoc.isObject())
             {
-                double wtc = 0.0;
-                double eth = 0.0;
+
                 QJsonObject obj = jsondoc.object();
 
             }
@@ -233,5 +283,58 @@ void binanceClient::replyFinishedOrder(QNetworkReply *reply)
     reply->deleteLater();
 }
 
+void binanceClient::replyFinishedCandle(QNetworkReply *reply)
+{
+
+    if (reply->error() != QNetworkReply::NoError)
+    {
+        qDebug() << reply->errorString();
+        reply->deleteLater();
+        return;
+    }
+
+    QByteArray data = reply->readAll();
+    //qDebug() << data;
+
+    if(!data.isEmpty())
+    {
+        QJsonDocument jsondoc = QJsonDocument::fromJson(data);
+
+        if(!jsondoc.isNull())
+        {
+            if(jsondoc.isArray())
+            {
+                emit candleSticksSignal(jsondoc.array());
+            }
+        }
+    }
+
+    reply->deleteLater();
+}
+
+void binanceClient::replyFinishedSTime(QNetworkReply *reply)
+{
+
+    if (reply->error() != QNetworkReply::NoError)
+    {
+        qDebug() << reply->errorString();
+        reply->deleteLater();
+        return;
+    }
+
+    QByteArray data = reply->readAll();
+    QJsonDocument jsondoc = QJsonDocument::fromJson(data);
+    if(!jsondoc.isNull())
+    {
+        if(jsondoc.isObject())
+        {
+            QJsonObject obj = jsondoc.object();
+
+            emit serverTimeSignal(obj["serverTime"].toVariant().toULongLong());
+        }
+    }
+
+    reply->deleteLater();
+}
 
 

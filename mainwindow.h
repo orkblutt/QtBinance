@@ -1,12 +1,17 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "binanceclient.h"
+
 #include <QMainWindow>
 #include <QThread>
 #include <QMutex>
 
+#include <QtCharts>
 
-#include "binanceclient.h"
+using namespace QtCharts;
+
+
 
 namespace Ui {
 class MainWindow;
@@ -28,6 +33,8 @@ signals:
 
     void emitPrice();
     void refreshAccount();
+    void refreshCandles();
+    void refreshSTime();
 };
 
 class MainWindow : public QMainWindow
@@ -42,7 +49,12 @@ private:
     Ui::MainWindow *ui;
     binanceClient* _client;
     priceThread* _thread;
+    QCandlestickSeries* _wtcethCandles;
+    QChart* _chart = new QChart();
+    QChartView* _chartView;
 
+
+    qulonglong _serverTime;
 
 
     bool _bReady;
@@ -62,12 +74,15 @@ public slots:
     void onPrice();
     void onPriceReply(double price);
     void onBalanceReply(double eth, double wtc);
+    void onRefreshSTimeReply(qulonglong stime);
+    void onCandleReply(QJsonArray jcandleArray);
     void onRefreshAccount();
+    void onRefreshCandles();
+    void onRefreshSTime();
 
 private slots:
     void on_pushButtonBuy_clicked();
     void on_pushButtonSell_clicked();
-    void on_checkBoxBuySell_clicked(bool checked);
 };
 
 #endif // MAINWINDOW_H

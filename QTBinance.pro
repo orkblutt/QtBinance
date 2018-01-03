@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network
+QT       += core gui network charts
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -27,12 +27,14 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
         binanceclient.cpp \
-    binancemgr.cpp
+    binancemgr.cpp \
+    candlestickdatareader.cpp
 
 HEADERS += \
         mainwindow.h \
         binanceclient.h \
-    binancemgr.h
+    binancemgr.h \
+    candlestickdatareader.h
 
 FORMS += \
         mainwindow.ui
