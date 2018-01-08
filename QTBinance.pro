@@ -27,12 +27,17 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
         binanceclient.cpp \
+    candlesticksview.cpp
 
 HEADERS += \
         mainwindow.h \
         binanceclient.h \
+    candlesticksview.h
 
 FORMS += \
         mainwindow.ui
 
 CONFIG  += openssl-linked
+
+RESOURCES += \
+    resources.qrc

@@ -128,7 +128,7 @@ void binanceClient::getAllOrders()
 
 void binanceClient::candleSticks(const QString &name, qulonglong startTime)
 {
-    qDebug() << startTime;
+    // qDebug() << startTime;
     QUrl url(QString(API_URL) + QString(CANDLESTICK) + QString("?symbol=") + name + QString("&interval=1m&startTime=") + QString::number(startTime));
 
     QNetworkRequest netReq;
@@ -137,7 +137,7 @@ void binanceClient::candleSticks(const QString &name, qulonglong startTime)
     // netReq.setRawHeader("X-Custom-User-Agent", "QTBinance");
     // netReq.setRawHeader("Accept", "application/json");
     netReq.setUrl(url);
-    qDebug() << url;
+    //qDebug() << url;
     QNetworkReply* reply = _networkManagerCandle->get(netReq);
 
 }
@@ -267,16 +267,23 @@ void binanceClient::replyFinishedOrder(QNetworkReply *reply)
     if(!data.isEmpty())
     {
         qDebug() << data;
-        QJsonDocument jsondoc = QJsonDocument::fromJson(data);
-
-        if(!jsondoc.isNull())
+        if(QString(data).indexOf("Error") == -1)
         {
-            if(jsondoc.isObject())
+            QJsonDocument jsondoc = QJsonDocument::fromJson(data);
+            if(!jsondoc.isNull())
             {
-
-                QJsonObject obj = jsondoc.object();
-
+                if(jsondoc.isObject())
+                {
+                    QJsonObject obj = jsondoc.object();
+qDebug() << obj["status"];
+                    if(obj["status"].toString() == "FILLED")
+                        emit orderStatusSignal(true);
+                }
             }
+        }
+        else
+        {
+            emit orderStatusSignal(false);
         }
     }
 

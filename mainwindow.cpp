@@ -6,66 +6,57 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    _buyPrice(0.01396892),
+    _buyPrice(0.01332),
     _sellPrice(0.0),
     _ethBal(0.0),
     _wtcBal(0.0),
     _currentPrice(0.0),
     _bReady(false),
     _buyMode(false),
-    _serverTime(0)
+    _serverTime(0),
+    _orderPending(false),
+    _priceOrder(0.0)
 {
     ui->setupUi(this);
+    QIcon icon(":/images/binance_logo.png");
+    setWindowIcon(icon);
 
     QString path(QDir::currentPath() + QDir::separator() + "key.ini");
-
     QSettings settings(path, QSettings::IniFormat);
-
     QString api_key=settings.value("api_key").toString();
     QString secret_key=settings.value("secret_key").toString();
 
-
     _client = new binanceClient(api_key.toLocal8Bit()
                                 , secret_key.toLocal8Bit());
-
-
 
     connect(_client, SIGNAL(priceSignal(double)), this, SLOT(onPriceReply(double)));
     connect(_client, SIGNAL(balanceSignal(double,double)), this, SLOT(onBalanceReply(double,double)));
     connect(_client, SIGNAL(serverTimeSignal(qulonglong)), this, SLOT(onRefreshSTimeReply(qulonglong)));
     connect(_client, SIGNAL(candleSticksSignal(QJsonArray)), this, SLOT(onCandleReply(QJsonArray)));
-
-
+    connect(_client, SIGNAL(orderStatusSignal(bool)), this, SLOT(onOrderReply(bool)));
 
     _thread = new priceThread(this);
     connect(_thread, SIGNAL(emitPrice()), this, SLOT(onPrice()));
     connect(_thread, SIGNAL(refreshAccount()), this, SLOT(onRefreshAccount()));
     connect(_thread, SIGNAL(refreshCandles()), this, SLOT(onRefreshCandles()));
     connect(_thread, SIGNAL(refreshSTime()), this, SLOT(onRefreshSTime()));
-
-
     _thread->start();
 
     _wtcethCandles = new QCandlestickSeries();
-   // _wtcethCandles->setName("Candlesticks");
     _wtcethCandles->setIncreasingColor(QColor(Qt::green));
     _wtcethCandles->setDecreasingColor(QColor(Qt::red));
 
-
     _chart = new QChart();
-
     _chart->setTitle("WTCETH");
     _chart->setAnimationOptions(QChart::NoAnimation);
     _chart->setTheme(QChart::ChartThemeDark);
 
-    _chart->legend()->setVisible(true);
-    _chart->legend()->setAlignment(Qt::AlignBottom);
+    _chart->legend()->setVisible(false);
 
-    _chartView = new QChartView(_chart);
+    _chartView = new candleSticksView(_chart);
     _chartView->setRenderHint(QPainter::Antialiasing);
 
     ui->gridLayout_2->addWidget(_chartView);
-
 }
 
 MainWindow::~MainWindow()
@@ -76,34 +67,57 @@ MainWindow::~MainWindow()
 void MainWindow::onPrice()
 {
     _client->getSymbolPrice("WTCETH");
-
 }
 
 void MainWindow::onPriceReply(double price)
 {
-
     _currentPrice = price;
     ui->lcdNumberWTCETH->display(price);
 
-    if(_bReady)
+    if(_bReady && !_orderPending)
     {
-        if(_buyPrice > 0.0 && (_buyPrice + ((_buyPrice/100) * 5) <= price)  )
+        if(_buyPrice > 0.0 && (_buyPrice + ((_buyPrice/100) * 7) <= price)  )
         {
             qDebug() << "SELL";
-            _sellPrice = price;
-            _buyPrice = 0;
-            on_pushButtonSell_clicked();
+            qDebug() << price;
 
+            _buyMode = false;
+            _orderPending = true;
+            _priceOrder = price;
+            on_pushButtonSell_clicked();
         }
 
-        if(_sellPrice > 0.0 && (_sellPrice - ((_sellPrice/100) * 3) >= price) )
+        if(_sellPrice > 0.0 && (_sellPrice - ((_sellPrice/100) * 4) >= price) )
         {
             qDebug() << "BUY";
-            _buyPrice = price;
-            _sellPrice = 0;
+            qDebug() << price;
+
+            _buyMode = true;
+            _orderPending = true;
+            _priceOrder = price;
             on_pushButtonBuy_clicked();
         }
     }
+}
+
+void MainWindow::onOrderReply(bool filled)
+{
+    if(filled)
+    {
+        if(_buyMode)
+        {
+            _buyPrice = _priceOrder;
+            _sellPrice = 0;
+        }
+        else
+        {
+            _sellPrice = _priceOrder;
+            _buyPrice = 0;
+        }
+
+        onRefreshAccount();
+    }
+    _orderPending = false;
 }
 
 void MainWindow::onBalanceReply(double eth, double wtc)
@@ -111,7 +125,6 @@ void MainWindow::onBalanceReply(double eth, double wtc)
     _ethBal = eth;
     _wtcBal = wtc;
 
-    qDebug() << "balance is " << _ethBal << " ETH and " << _wtcBal << " WTC";
     ui->lcdNumberBalEth->display(_ethBal);
     ui->lcdNumberBalWTC->display(_wtcBal);
 
@@ -121,7 +134,6 @@ void MainWindow::onBalanceReply(double eth, double wtc)
 void MainWindow::onRefreshSTimeReply(qulonglong stime)
 {
     _serverTime = stime;
-    qDebug() << "Server time: " << stime;
 }
 
 void MainWindow::onCandleReply(QJsonArray jcandleArray)
@@ -130,9 +142,9 @@ void MainWindow::onCandleReply(QJsonArray jcandleArray)
     QStringList categories;
 
     _chart->removeSeries(_wtcethCandles);
-
     _wtcethCandles->clear();
 
+    int count = 0;
     foreach(QJsonValue element, jcandleArray)
     {
         QJsonArray array = element.toArray();
@@ -143,6 +155,7 @@ void MainWindow::onCandleReply(QJsonArray jcandleArray)
         candlestickSet->setClose(array[4].toString().toDouble());
         _wtcethCandles->append(candlestickSet);
         categories << QDateTime::fromMSecsSinceEpoch(candlestickSet->timestamp()).toString("hh:mm");
+        count++;
     }
 
     _chart->addSeries(_wtcethCandles);
@@ -151,14 +164,11 @@ void MainWindow::onCandleReply(QJsonArray jcandleArray)
 
     QBarCategoryAxis *axisX = qobject_cast<QBarCategoryAxis *>(_chart->axes(Qt::Horizontal).at(0));
     axisX->setCategories(categories);
-/*
-    QValueAxis *axisY = qobject_cast<QValueAxis *>(_chart->axes(Qt::Vertical).at(0));
-    qDebug() << axisY->max() << " " << axisY->min();
-    //axisY->setMax(axisY->max() * 1.01);
-    //axisY->setMin(axisY->min() * 0.99);
-*/
+
+    if(!_chartView->ready()) _chartView->setReady(true);
 
 }
+
 
 void MainWindow::onRefreshAccount()
 {
@@ -168,7 +178,7 @@ void MainWindow::onRefreshAccount()
 void MainWindow::onRefreshCandles()
 {
     if(_serverTime > 0)
-        _client->candleSticks("WTCETH", _serverTime - 1800000);
+        _client->candleSticks("WTCETH", _serverTime - 3600000);
 }
 
 void MainWindow::onRefreshSTime()
@@ -189,8 +199,7 @@ void priceThread::run()
 
     while(1)
     {
-
-        if(refreshSTimeCntr % 500 == 0)
+        if(refreshSTimeCntr % 120 == 0)
         {
             refreshSTimeCntr = 0;
             emit refreshSTime();
@@ -204,7 +213,7 @@ void priceThread::run()
             QThread::msleep(500);
         }
 
-        if(refreshCandleCntr % 5 == 0)
+        if(refreshCandleCntr % 10 == 0)
         {
             refreshCandleCntr = 0;
             emit refreshCandles();
@@ -223,11 +232,12 @@ void priceThread::run()
 
 void MainWindow::on_pushButtonBuy_clicked()
 {
-    double allIn = qRound(_ethBal / _currentPrice) - 5;
+    double allIn = qRound(_ethBal / _currentPrice) - 15;
     qDebug() << allIn;
     _client->openOrder("WTCETH", "BUY", "MARKET", allIn, 0 );
-    _buyPrice = _currentPrice;
-    _sellPrice = 0.0;
+    _buyMode = true;
+    _orderPending = true;
+    _priceOrder = _currentPrice;
 
 }
 
@@ -236,7 +246,8 @@ void MainWindow::on_pushButtonSell_clicked()
     qDebug() << _wtcBal;
     double wtc = qRound(_wtcBal) - 1;
     _client->openOrder("WTCETH", "SELL", "MARKET", wtc, 0 );
-    _sellPrice = _currentPrice;
-    _buyPrice = 0;
+    _buyMode = false;
+    _orderPending = true;
+    _priceOrder = _currentPrice;
 }
 

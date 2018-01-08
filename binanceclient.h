@@ -117,6 +117,7 @@ signals:
     void refreshAccount();
     void serverTimeSignal(qulonglong stime);
     void candleSticksSignal(QJsonArray);
+    void orderStatusSignal(bool filled);
 };
 
 #endif // BINANCECLIENT_H

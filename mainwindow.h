@@ -9,6 +9,8 @@
 
 #include <QtCharts>
 
+#include "candlesticksview.h"
+
 using namespace QtCharts;
 
 
@@ -51,7 +53,7 @@ private:
     priceThread* _thread;
     QCandlestickSeries* _wtcethCandles;
     QChart* _chart = new QChart();
-    QChartView* _chartView;
+    candleSticksView* _chartView;
 
 
     qulonglong _serverTime;
@@ -68,6 +70,9 @@ private:
 
     bool _buyMode;
 
+    bool _orderPending;
+    double _priceOrder;
+
 
 
 public slots:
@@ -76,6 +81,7 @@ public slots:
     void onBalanceReply(double eth, double wtc);
     void onRefreshSTimeReply(qulonglong stime);
     void onCandleReply(QJsonArray jcandleArray);
+    void onOrderReply(bool filled);
     void onRefreshAccount();
     void onRefreshCandles();
     void onRefreshSTime();
