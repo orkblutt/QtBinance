@@ -233,6 +233,12 @@ QPushButton:disabled
       <layout class="QGridLayout" name="gridLayout">
        <item row="0" column="0">
         <widget class="QLabel" name="label_5">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="text">
           <string>ETH</string>
          </property>
@@ -240,6 +246,12 @@ QPushButton:disabled
        </item>
        <item row="0" column="1">
         <widget class="QLCDNumber" name="lcdNumberBalEth">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="digitCount">
           <number>8</number>
          </property>
@@ -247,6 +259,12 @@ QPushButton:disabled
        </item>
        <item row="1" column="0">
         <widget class="QLabel" name="label_6">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="text">
           <string>WTC</string>
          </property>
@@ -254,8 +272,27 @@ QPushButton:disabled
        </item>
        <item row="1" column="1">
         <widget class="QLCDNumber" name="lcdNumberBalWTC">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="digitCount">
           <number>8</number>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QLabel" name="label_ETHValue">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>0 ETH</string>
          </property>
         </widget>
        </item>

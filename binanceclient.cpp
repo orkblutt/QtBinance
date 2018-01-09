@@ -92,9 +92,9 @@ void binanceClient::getAccount()
     netReq.setSslConfiguration(QSslConfiguration::defaultConfiguration());
     netReq.setUrl(url);
     netReq.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
-    netReq.setRawHeader("User-Agent", "QTBinance");
-    netReq.setRawHeader("X-Custom-User-Agent", "QTBinance");
-    netReq.setRawHeader("Accept", "application/json");
+    //netReq.setRawHeader("User-Agent", "QTBinance");
+    //netReq.setRawHeader("X-Custom-User-Agent", "QTBinance");
+    //netReq.setRawHeader("Accept", "application/json");
     netReq.setRawHeader("X-MBX-APIKEY", _apiKey);
 
 

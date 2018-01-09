@@ -128,6 +128,8 @@ void MainWindow::onBalanceReply(double eth, double wtc)
     ui->lcdNumberBalEth->display(_ethBal);
     ui->lcdNumberBalWTC->display(_wtcBal);
 
+    ui->label_ETHValue->setText(QString::number(_wtcBal * _currentPrice) + QString(" ETH"));
+
     _bReady = true;
 }
 
@@ -206,7 +208,7 @@ void priceThread::run()
             QThread::msleep(500);
         }
 
-        if(refreshAccCntr % 200 == 0)
+        if(refreshAccCntr % 50 == 0)
         {
             refreshAccCntr = 0;
             emit refreshAccount();
