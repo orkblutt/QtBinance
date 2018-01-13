@@ -6,7 +6,7 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    _buyPrice(0.01332),
+    _buyPrice(0.0134),
     _sellPrice(0.0),
     _ethBal(0.0),
     _wtcBal(0.0),
@@ -15,7 +15,8 @@ MainWindow::MainWindow(QWidget *parent) :
     _buyMode(false),
     _serverTime(0),
     _orderPending(false),
-    _priceOrder(0.0)
+    _priceOrder(0.0),
+    _orderMessage(true)
 {
     ui->setupUi(this);
     QIcon icon(":/images/binance_logo.png");
@@ -76,25 +77,32 @@ void MainWindow::onPriceReply(double price)
 
     if(_bReady && !_orderPending)
     {
-        if(_buyPrice > 0.0 && (_buyPrice + ((_buyPrice/100) * 7) <= price)  )
-        {
-            qDebug() << "SELL";
-            qDebug() << price;
 
-            _buyMode = false;
-            _orderPending = true;
+        if(_orderMessage)
+        {
+            if(_buyPrice > 0)
+                qDebug() << "Next sell at " << _buyPrice + ((_buyPrice/100) * 10) << " ETH";
+            else
+                qDebug() << "Next buy at " << _sellPrice - ((_sellPrice/100) * 10) << " ETH";
+            _orderMessage = false;
+        }
+
+
+        if(_buyPrice > 0.0 && (_buyPrice + ((_buyPrice/100) * 10) <= price)  )
+        {
+            qDebug() << "SELL @ " << price;
+
             _priceOrder = price;
+            _orderMessage =true;
             on_pushButtonSell_clicked();
         }
 
-        if(_sellPrice > 0.0 && (_sellPrice - ((_sellPrice/100) * 4) >= price) )
+        if(_sellPrice > 0.0 && (_sellPrice - ((_sellPrice/100) * 10) >= price) )
         {
-            qDebug() << "BUY";
-            qDebug() << price;
+            qDebug() << "BUY @ " << price;
 
-            _buyMode = true;
-            _orderPending = true;
             _priceOrder = price;
+            _orderMessage = true;
             on_pushButtonBuy_clicked();
         }
     }
@@ -104,6 +112,7 @@ void MainWindow::onOrderReply(bool filled)
 {
     if(filled)
     {
+        qDebug() << "ORDER has been filled";
         if(_buyMode)
         {
             _buyPrice = _priceOrder;
@@ -115,8 +124,17 @@ void MainWindow::onOrderReply(bool filled)
             _buyPrice = 0;
         }
 
+        qDebug() << "SELL PRICE: " << _sellPrice;
+        qDebug() << "BUY PRICE: " << _buyPrice;
+
+        qDebug() << "NEXT MOVE IS A " << ((_sellPrice > 0.0) ? "BUY" : "SELL");
+
+        _buyMode = !_buyMode;
+
         onRefreshAccount();
     }
+    else
+        qDebug() << "ORDER IS NOT FILLED!";
     _orderPending = false;
 }
 
@@ -205,17 +223,17 @@ void priceThread::run()
         {
             refreshSTimeCntr = 0;
             emit refreshSTime();
-            QThread::msleep(500);
+            //QThread::msleep(500);
         }
 
         if(refreshAccCntr % 50 == 0)
         {
             refreshAccCntr = 0;
             emit refreshAccount();
-            QThread::msleep(500);
+            //QThread::msleep(500);
         }
 
-        if(refreshCandleCntr % 10 == 0)
+        if(refreshCandleCntr % 15 == 0)
         {
             refreshCandleCntr = 0;
             emit refreshCandles();
@@ -240,6 +258,7 @@ void MainWindow::on_pushButtonBuy_clicked()
     _buyMode = true;
     _orderPending = true;
     _priceOrder = _currentPrice;
+    _orderMessage = true;
 
 }
 
@@ -251,5 +270,6 @@ void MainWindow::on_pushButtonSell_clicked()
     _buyMode = false;
     _orderPending = true;
     _priceOrder = _currentPrice;
+    _orderMessage = true;
 }
 

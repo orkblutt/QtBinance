@@ -73,6 +73,8 @@ private:
     bool _orderPending;
     double _priceOrder;
 
+    bool _orderMessage;
+
 
 
 public slots:
