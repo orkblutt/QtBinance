@@ -258,7 +258,7 @@ QPushButton:disabled
         </widget>
        </item>
        <item row="1" column="0">
-        <widget class="QLabel" name="label_6">
+        <widget class="QLabel" name="labelCryptoC">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
            <horstretch>0</horstretch>
@@ -292,7 +292,7 @@ QPushButton:disabled
           </sizepolicy>
          </property>
          <property name="text">
-          <string>0 ETH</string>
+          <string>= 0 ETH</string>
          </property>
         </widget>
        </item>
@@ -306,7 +306,7 @@ QPushButton:disabled
       </property>
       <layout class="QGridLayout" name="gridLayout_2">
        <item row="0" column="0">
-        <widget class="QLabel" name="label">
+        <widget class="QLabel" name="labelPairPrice">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
            <horstretch>0</horstretch>
@@ -340,19 +340,46 @@ QPushButton:disabled
        <string>Action</string>
       </property>
       <layout class="QGridLayout" name="gridLayout_4">
-       <item row="1" column="0">
+       <item row="1" column="2">
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>Last sell price:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
         <widget class="QPushButton" name="pushButtonBuy">
          <property name="text">
           <string>BUY @ MARKET PRICE</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="1">
+       <item row="2" column="3">
         <widget class="QPushButton" name="pushButtonSell">
          <property name="text">
           <string>SELL @ MARKET PRICE</string>
          </property>
         </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>last buy price:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QCheckBox" name="checkBoxAutoTrade">
+         <property name="text">
+          <string>Auto trade</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLineEdit" name="lineEditLastBuyPrice"/>
+       </item>
+       <item row="1" column="3">
+        <widget class="QLineEdit" name="lineEditLastSellPrice"/>
        </item>
       </layout>
      </widget>

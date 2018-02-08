@@ -58,6 +58,8 @@ private:
 
     qulonglong _serverTime;
 
+    QString _ccurrency;
+
 
     bool _bReady;
     double _currentPrice;
@@ -91,6 +93,7 @@ public slots:
 private slots:
     void on_pushButtonBuy_clicked();
     void on_pushButtonSell_clicked();
+    void on_checkBoxAutoTrade_clicked(bool checked);
 };
 
 #endif // MAINWINDOW_H

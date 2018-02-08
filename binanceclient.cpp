@@ -201,7 +201,7 @@ void binanceClient::replyFinishedAccount(QNetworkReply *reply)
                     QJsonObject node = element.toObject();
                     if(node["asset"] == "ETH")
                         eth = node["free"].toString().toDouble();
-                    else if(node["asset"] == "WTC")
+                    else if(node["asset"] == "ADA")
                         wtc = node["free"].toString().toDouble();
 
                 }
@@ -243,7 +243,7 @@ void binanceClient::replyFinishedPrice(QNetworkReply *reply)
                 foreach(QJsonValue element, jsondoc.array())
                 {
                     QJsonObject node = element.toObject();
-                    if(node["symbol"].toString() == "WTCETH")
+                    if(node["symbol"].toString() == "ADAETH")
                         qDebug() << node["symbol"].toString() << node["price"].toString().toDouble();
                 }
             }
@@ -275,7 +275,7 @@ void binanceClient::replyFinishedOrder(QNetworkReply *reply)
                 if(jsondoc.isObject())
                 {
                     QJsonObject obj = jsondoc.object();
-qDebug() << obj["status"];
+//qDebug() << obj["status"];
                     if(obj["status"].toString() == "FILLED")
                         emit orderStatusSignal(true);
                 }

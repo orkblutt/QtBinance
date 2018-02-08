@@ -6,7 +6,7 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    _buyPrice(0.0134),
+    _buyPrice(0.00063846),
     _sellPrice(0.0),
     _ethBal(0.0),
     _wtcBal(0.0),
@@ -16,7 +16,8 @@ MainWindow::MainWindow(QWidget *parent) :
     _serverTime(0),
     _orderPending(false),
     _priceOrder(0.0),
-    _orderMessage(true)
+    _orderMessage(true),
+    _ccurrency("ADA")
 {
     ui->setupUi(this);
     QIcon icon(":/images/binance_logo.png");
@@ -48,7 +49,7 @@ MainWindow::MainWindow(QWidget *parent) :
     _wtcethCandles->setDecreasingColor(QColor(Qt::red));
 
     _chart = new QChart();
-    _chart->setTitle("WTCETH");
+    _chart->setTitle(_ccurrency + QString("ETH"));
     _chart->setAnimationOptions(QChart::NoAnimation);
     _chart->setTheme(QChart::ChartThemeDark);
 
@@ -58,6 +59,12 @@ MainWindow::MainWindow(QWidget *parent) :
     _chartView->setRenderHint(QPainter::Antialiasing);
 
     ui->gridLayout_2->addWidget(_chartView);
+
+    ui->labelCryptoC->setText(_ccurrency);
+    ui->labelPairPrice->setText(_ccurrency + QString("ETH current price:"));
+
+    ui->checkBoxAutoTrade->setChecked(false);
+
 }
 
 MainWindow::~MainWindow()
@@ -67,7 +74,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::onPrice()
 {
-    _client->getSymbolPrice("WTCETH");
+    _client->getSymbolPrice(_ccurrency + QString("ETH"));
 }
 
 void MainWindow::onPriceReply(double price)
@@ -75,20 +82,20 @@ void MainWindow::onPriceReply(double price)
     _currentPrice = price;
     ui->lcdNumberWTCETH->display(price);
 
-    if(_bReady && !_orderPending)
+    if(_bReady && !_orderPending && ui->checkBoxAutoTrade->isChecked())
     {
 
         if(_orderMessage)
         {
             if(_buyPrice > 0)
-                qDebug() << "Next sell at " << _buyPrice + ((_buyPrice/100) * 10) << " ETH";
+                qDebug() << "Next sell at " << _buyPrice + ((_buyPrice/100) * 8) << " ETH";
             else
-                qDebug() << "Next buy at " << _sellPrice - ((_sellPrice/100) * 10) << " ETH";
+                qDebug() << "Next buy at " << _sellPrice - ((_sellPrice/100) * 8) << " ETH";
             _orderMessage = false;
         }
 
 
-        if(_buyPrice > 0.0 && (_buyPrice + ((_buyPrice/100) * 10) <= price)  )
+        if(_buyPrice > 0.0 && (_buyPrice + ((_buyPrice/100) * 8) <= price)  )
         {
             qDebug() << "SELL @ " << price;
 
@@ -97,7 +104,7 @@ void MainWindow::onPriceReply(double price)
             on_pushButtonSell_clicked();
         }
 
-        if(_sellPrice > 0.0 && (_sellPrice - ((_sellPrice/100) * 10) >= price) )
+        if(_sellPrice > 0.0 && (_sellPrice - ((_sellPrice/100) * 8) >= price) )
         {
             qDebug() << "BUY @ " << price;
 
@@ -123,6 +130,9 @@ void MainWindow::onOrderReply(bool filled)
             _sellPrice = _priceOrder;
             _buyPrice = 0;
         }
+
+        ui->lineEditLastBuyPrice->setText(QString::number(_buyPrice));
+        ui->lineEditLastSellPrice->setText(QString::number(_sellPrice));
 
         qDebug() << "SELL PRICE: " << _sellPrice;
         qDebug() << "BUY PRICE: " << _buyPrice;
@@ -198,7 +208,7 @@ void MainWindow::onRefreshAccount()
 void MainWindow::onRefreshCandles()
 {
     if(_serverTime > 0)
-        _client->candleSticks("WTCETH", _serverTime - 3600000);
+        _client->candleSticks(_ccurrency + QString("ETH"), _serverTime - 3600000);
 }
 
 void MainWindow::onRefreshSTime()
@@ -254,7 +264,7 @@ void MainWindow::on_pushButtonBuy_clicked()
 {
     double allIn = qRound(_ethBal / _currentPrice) - 15;
     qDebug() << allIn;
-    _client->openOrder("WTCETH", "BUY", "MARKET", allIn, 0 );
+    _client->openOrder(_ccurrency + QString("ETH"), "BUY", "MARKET", allIn, 0 );
     _buyMode = true;
     _orderPending = true;
     _priceOrder = _currentPrice;
@@ -266,10 +276,33 @@ void MainWindow::on_pushButtonSell_clicked()
 {
     qDebug() << _wtcBal;
     double wtc = qRound(_wtcBal) - 1;
-    _client->openOrder("WTCETH", "SELL", "MARKET", wtc, 0 );
+    _client->openOrder(_ccurrency + QString("ETH"), "SELL", "MARKET", wtc, 0 );
     _buyMode = false;
     _orderPending = true;
     _priceOrder = _currentPrice;
     _orderMessage = true;
 }
+
+
+void MainWindow::on_checkBoxAutoTrade_clicked(bool checked)
+{
+    if(checked)
+    {
+        if(ui->lineEditLastBuyPrice->text().isEmpty() && ui->lineEditLastSellPrice->text().isEmpty())
+        {
+           ui->checkBoxAutoTrade->setChecked(false);
+           return;
+        }
+
+        if(!ui->lineEditLastBuyPrice->text().isEmpty() && !ui->lineEditLastSellPrice->text().isEmpty())
+        {
+           ui->checkBoxAutoTrade->setChecked(false);
+           return;
+        }
+
+        _buyPrice = ui->lineEditLastBuyPrice->text().toDouble();
+        _sellPrice = ui->lineEditLastSellPrice->text().toDouble();
+    }
+}
+
 
